@@ -1,0 +1,165 @@
+/* section-two */
+
+/* dropdown  */
+.card-header {
+  border-bottom: 2px solid #d1d7dc;
+}
+.card-header .btn {
+  text-decoration: none;
+  box-shadow: none;
+  color: #343a40;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+.card-body {
+  padding-top: 15px;
+  padding-bottom: 10px;
+}
+.card-body ul {
+  padding-left: 34px;
+  margin: 0;
+}
+.card-body ul li {
+  margin-bottom: 8px;
+}
+.card-body .topic-details li {
+  margin-top: 10px;
+}
+
+.collapse-icon::before {
+  content: "\f107";
+  font-family: "Font Awesome 6 Free";
+  font-size: 15px;
+  padding-right: 10px;
+}
+
+.btn[aria-expanded="true"] .collapse-icon::before {
+  content: "\f106";
+  font-family: "Font Awesome 6 Free";
+}
+/*  end */
+
+/* section-two end*/
+
+/* Học thử trong tiêu đề collapse (khóa học admin thêm mới) */
+.card-header.has-trial {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-header.has-trial h2 {
+  flex: 1;
+  min-width: 0;
+}
+.trial-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding-right: 8px;
+  font-size: 14px;
+}
+.trial-link {
+  color: var(--color-one, #0d6efd);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.trial-link:hover {
+  text-decoration: underline;
+}
+.trial-time {
+  color: #6c757d;
+}
+.trial-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(0, 0, 0, 0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.trial-modal.open {
+  display: flex;
+}
+.trial-dialog {
+  width: 100%;
+  max-width: 860px;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.trial-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  font-weight: 700;
+}
+.trial-close {
+  border: none;
+  background: #f1f3f5;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.trial-close:hover {
+  background: #ffe3e3;
+  color: #c92a2a;
+}
+.trial-frame {
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+.trial-frame iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+@media (max-width: 575px) {
+  .card-header.has-trial {
+    flex-wrap: wrap;
+  }
+  .trial-box {
+    padding: 0 0 8px 12px;
+  }
+}
+
+.trial-frame {
+  position: relative;
+}
+.trial-frame iframe {
+  position: absolute;
+  inset: 0;
+}
+.trial-note {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  text-align: center;
+  color: #fff;
+  line-height: 1.6;
+}
+.trial-yt {
+  color: #ff6b6b;
+  font-weight: 600;
+  text-decoration: none;
+}
+.trial-yt:hover {
+  text-decoration: underline;
+}
+.trial-ext {
+  margin-left: auto;
+  font-size: 14px;
+}
