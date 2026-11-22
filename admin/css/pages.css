@@ -1380,37 +1380,6 @@ table.data-table {
   height: 6px;
   margin-top: 5px;
 }
-.test-box {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr 1.2fr auto;
-  gap: 12px;
-  align-items: end;
-}
-.test-box .form-group {
-  margin: 0;
-}
-.test-result {
-  margin-top: 14px;
-  border-radius: 12px;
-  padding: 12px 16px;
-  font-weight: 500;
-}
-.test-result.ok {
-  background: var(--green-soft);
-  color: #0b6b4e;
-}
-.test-result.bad {
-  background: var(--red-soft);
-  color: #c92a2a;
-}
-.test-result .calc {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-  margin-top: 6px;
-  font-size: 13.5px;
-}
-
 /* Ảnh khóa học trong form */
 .image-picker {
   display: flex;
@@ -1566,8 +1535,7 @@ table.data-table {
   }
   .stat-grid,
   .form-row,
-  .info-grid,
-  .test-box {
+  .info-grid {
     grid-template-columns: 1fr;
   }
   .image-picker {

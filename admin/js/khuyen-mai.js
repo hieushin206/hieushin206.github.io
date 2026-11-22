@@ -1,7 +1,7 @@
 /* =========================================================
    khuyen-mai.js - Trang "Khuyến mãi"
    Quy tắc kiểm tra mã (hợp lệ, thời hạn, đơn tối thiểu, số lượng)
-   nằm trong Store.validatePromo - trang giỏ hàng của học viên
+   nằm trong Store.validatePromo - trang giỏ hàng của khách hàng
    chỉ cần gọi hàm này để tính lại tổng tiền.
    ========================================================= */
 function initPromoPage() {
@@ -260,38 +260,10 @@ function initPromoPage() {
     render();
   }
 
-  /* ---------- Thử mã (giả lập giỏ hàng) ---------- */
-  function testPromo() {
-    const amount = Number($("t-amount").value) || 0;
-    const r = Store.validatePromo(
-      $("t-code").value,
-      amount,
-      $("t-student").value,
-    );
-    $("t-result").innerHTML =
-      '<div class="test-result ' +
-      (r.valid ? "ok" : "bad") +
-      '"><i class="fa-solid ' +
-      (r.valid ? "fa-circle-check" : "fa-circle-xmark") +
-      '"></i> ' +
-      UI.esc(r.message) +
-      (r.valid
-        ? '<div class="calc"><span>Tạm tính: <b>' +
-          UI.money(amount) +
-          "</b></span><span>Giảm: <b>- " +
-          UI.money(r.discount) +
-          "</b></span><span>Phải trả: <b>" +
-          UI.money(r.total) +
-          "</b></span></div>"
-        : "") +
-      "</div>";
-  }
-
   /* ---------- Sự kiện ---------- */
   $("btn-add").addEventListener("click", () => openForm());
   $("btn-save").addEventListener("click", saveForm);
   $("f-type").addEventListener("change", updateValueLabel);
-  $("btn-test").addEventListener("click", testPromo);
   $("f-audience").addEventListener("change", updateAudience);
   $("f-unlimited").addEventListener("change", updateUnlimited);
   $("sp-search").addEventListener(
@@ -314,9 +286,6 @@ function initPromoPage() {
   $("sp-none").addEventListener("click", () => {
     selected.clear();
     renderStudentPicker();
-  });
-  $("t-code").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") testPromo();
   });
   $("search").addEventListener(
     "input",
@@ -356,21 +325,6 @@ function initPromoPage() {
     );
     render();
   });
-
-  $("t-student").innerHTML =
-    '<option value="">Khách bất kỳ</option>' +
-    Store.get("students")
-      .map(
-        (st) =>
-          '<option value="' +
-          UI.esc(st.id) +
-          '">' +
-          UI.esc(st.name) +
-          " (" +
-          UI.esc(st.id) +
-          ")</option>",
-      )
-      .join("");
 
   render();
 }
