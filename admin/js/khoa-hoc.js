@@ -29,20 +29,16 @@ function initCoursePage() {
   /* ---------- Lọc dữ liệu ---------- */
   function getFiltered() {
     let list = Store.get("courses").filter((c) => !c.deleted);
-    if (state.status === "active" || state.status === "hidden")
-      list = list.filter((c) => c.status === state.status);
+    if (state.status === "active" || state.status === "hidden") list = list.filter((c) => c.status === state.status);
     const kw = UI.normalize(state.search);
-    if (kw)
-      list = list.filter((c) => UI.normalize(c.name + " " + c.id).includes(kw));
+    if (kw) list = list.filter((c) => UI.normalize(c.name + " " + c.id).includes(kw));
     return list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // mới nhất trước
   }
 
   // Số lượt bán của từng khóa (tính từ đơn hoàn thành)
   function getSoldMap() {
     const map = {};
-    Store.completedOrders().forEach((o) =>
-      o.items.forEach((it) => (map[it.courseId] = (map[it.courseId] || 0) + 1)),
-    );
+    Store.completedOrders().forEach((o) => o.items.forEach((it) => (map[it.courseId] = (map[it.courseId] || 0) + 1)));
     return map;
   }
 
@@ -52,67 +48,32 @@ function initCoursePage() {
     const alive = all.filter((c) => !c.deleted);
     const tabs = [
       { key: "all", label: "Tất cả", count: alive.length },
-      {
-        key: "active",
-        label: "Đang hiển thị",
-        count: alive.filter((c) => c.status === "active").length,
-      },
-      {
-        key: "hidden",
-        label: "Đang ẩn",
-        count: alive.filter((c) => c.status === "hidden").length,
-      },
+      { key: "active", label: "Đang hiển thị", count: alive.filter((c) => c.status === "active").length },
+      { key: "hidden", label: "Đang ẩn", count: alive.filter((c) => c.status === "hidden").length },
     ];
     $("status-tabs").innerHTML = tabs
-      .map(
-        (t) =>
-          '<button class="tab ' +
-          (state.status === t.key ? "active" : "") +
-          '" data-status="' +
-          t.key +
-          '">' +
-          t.label +
-          '<span class="count">' +
-          t.count +
-          "</span></button>",
-      )
+      .map((t) => '<button class="tab ' + (state.status === t.key ? "active" : "") + '" data-status="' + t.key + '">' + t.label + '<span class="count">' + t.count + "</span></button>")
       .join("");
   }
 
   function statusCell(c) {
     const on = c.status === "active";
     return (
-      '<label class="switch-wrap"><span class="switch"><input type="checkbox" data-action="toggle" data-id="' +
-      c.id +
-      '"' +
-      (on ? " checked" : "") +
-      '><span class="slider"></span></span>' +
-      "<span>" +
-      (on ? "Hiển thị" : "Đang ẩn") +
-      "</span></label>"
+      '<label class="switch-wrap"><span class="switch"><input type="checkbox" data-action="toggle" data-id="' + c.id + '"' + (on ? " checked" : "") + '><span class="slider"></span></span>' +
+      "<span>" + (on ? "Hiển thị" : "Đang ẩn") + "</span></label>"
     );
   }
 
   function actionButtons(c) {
     return (
-      (c.href
-        ? '<button class="icon-btn" title="Xem trang khóa học" data-action="view" data-id="' +
-          c.id +
-          '"><i class="fa-solid fa-eye"></i></button>'
-        : "") +
-      '<button class="icon-btn" title="Sửa thông tin" data-action="edit" data-id="' +
-      c.id +
-      '"><i class="fa-solid fa-pen"></i></button>' +
-      '<button class="icon-btn danger" title="Xóa khóa học" data-action="delete" data-id="' +
-      c.id +
-      '"><i class="fa-solid fa-trash"></i></button>'
+      '<button class="icon-btn" title="Sửa thông tin" data-action="edit" data-id="' + c.id + '"><i class="fa-solid fa-pen"></i></button>' +
+      '<button class="icon-btn danger" title="Xóa khóa học" data-action="delete" data-id="' + c.id + '"><i class="fa-solid fa-trash"></i></button>'
     );
   }
 
   function priceHtml(c) {
     let html = '<div class="price">' + UI.money(c.price) + "</div>";
-    if (c.oldPrice > c.price)
-      html += '<div class="price-old">' + UI.money(c.oldPrice) + "</div>";
+    if (c.oldPrice > c.price) html += '<div class="price-old">' + UI.money(c.oldPrice) + "</div>";
     return html;
   }
 
@@ -120,34 +81,19 @@ function initCoursePage() {
     const rows = items
       .map((c) => {
         return (
-          "<tr>" +
-          '<td><img class="thumb" src="' +
-          UI.esc(UI.img(c.image)) +
-          '" alt=""></td>' +
-          '<td><div class="cell-title">' +
-          UI.esc(c.name) +
-          '</div><div class="cell-sub">' +
-          c.id +
-          "</div></td>" +
-          '<td class="num">' +
-          priceHtml(c) +
-          "</td>" +
-          '<td class="num">' +
-          (sold[c.id] || 0) +
-          "</td>" +
-          "<td>" +
-          statusCell(c) +
-          "</td>" +
-          '<td class="actions">' +
-          actionButtons(c) +
-          "</td></tr>"
+          '<tr>' +
+          '<td><img class="thumb" src="' + UI.esc(UI.img(c.image)) + '" alt=""></td>' +
+          '<td><div class="cell-title">' + UI.esc(c.name) + '</div><div class="cell-sub">' + c.id + "</div></td>" +
+          '<td class="num">' + priceHtml(c) + "</td>" +
+          '<td class="num">' + (sold[c.id] || 0) + "</td>" +
+          "<td>" + statusCell(c) + "</td>" +
+          '<td class="actions">' + actionButtons(c) + "</td></tr>"
         );
       })
       .join("");
     return (
       '<div class="table-wrap"><table class="data-table"><thead><tr><th>Ảnh</th><th>Khóa học</th><th class="num">Giá</th><th class="num">Đã bán</th><th>Trạng thái</th><th class="num">Thao tác</th></tr></thead><tbody>' +
-      rows +
-      "</tbody></table></div>"
+      rows + "</tbody></table></div>"
     );
   }
 
@@ -158,23 +104,11 @@ function initCoursePage() {
         .map((c) => {
           return (
             '<div class="course-card">' +
-            '<div class="cc-img"><img src="' +
-            UI.esc(UI.img(c.image)) +
-            '" alt=""></div>' +
-            '<div class="cc-body"><div class="cc-title">' +
-            UI.esc(c.name) +
-            "</div>" +
-            '<div class="cc-meta"><span><i class="fa-solid fa-cart-shopping"></i> ' +
-            (sold[c.id] || 0) +
-            " đã bán</span></div>" +
-            "<div>" +
-            priceHtml(c) +
-            "</div></div>" +
-            '<div class="cc-foot">' +
-            statusCell(c) +
-            "<div>" +
-            actionButtons(c) +
-            "</div></div></div>"
+            '<div class="cc-img"><img src="' + UI.esc(UI.img(c.image)) + '" alt=""></div>' +
+            '<div class="cc-body"><div class="cc-title">' + UI.esc(c.name) + "</div>" +
+            '<div class="cc-meta"><span><i class="fa-solid fa-cart-shopping"></i> ' + (sold[c.id] || 0) + " đã bán</span></div>" +
+            "<div>" + priceHtml(c) + "</div></div>" +
+            '<div class="cc-foot">' + statusCell(c) + "<div>" + actionButtons(c) + "</div></div></div>"
           );
         })
         .join("") +
@@ -197,13 +131,10 @@ function initCoursePage() {
       listArea.innerHTML =
         '<div class="empty-state"><i class="fa-regular fa-folder-open"></i><h3>' +
         "Không tìm thấy khóa học" +
-        "</h3><p>" +
-        "Hãy thử đổi từ khóa hoặc bộ lọc." +
-        "</p></div>";
+        "</h3><p>" + "Hãy thử đổi từ khóa hoặc bộ lọc." + "</p></div>";
     } else {
       const sold = getSoldMap();
-      listArea.innerHTML =
-        state.view === "card" ? cardsHtml(items, sold) : tableHtml(items, sold);
+      listArea.innerHTML = state.view === "card" ? cardsHtml(items, sold) : tableHtml(items, sold);
     }
     UI.pager($("pager"), list.length, state.page, size, (p) => {
       state.page = p;
@@ -215,48 +146,23 @@ function initCoursePage() {
   /* ---------- Ảnh khóa học: chọn từ thư viện, tải lên + đặt tên, xóa khỏi lựa chọn ---------- */
   function setImage(src) {
     $("f-image").value = src || "";
-    $("image-preview").innerHTML = src
-      ? '<img src="' + UI.esc(UI.img(src)) + '" alt="">'
-      : '<i class="fa-regular fa-image"></i>';
+    $("image-preview").innerHTML = src ? '<img src="' + UI.esc(UI.img(src)) + '" alt="">' : '<i class="fa-regular fa-image"></i>';
     renderGallery();
   }
 
   // Lưới ảnh: ảnh có sẵn của website + ảnh admin đã tải lên (có nút × để xóa)
   function renderGallery() {
     const current = $("f-image").value;
-    const preset = PRESET_IMAGES.map((p) => ({
-      src: p.file,
-      name: p.label,
-      mine: false,
-    }));
-    const mine = Store.getImageLibrary().map((i) => ({
-      src: i.src,
-      name: i.name,
-      mine: true,
-      id: i.id,
-    }));
+    const preset = PRESET_IMAGES.map((p) => ({ src: p.file, name: p.label, mine: false }));
+    const mine = Store.getImageLibrary().map((i) => ({ src: i.src, name: i.name, mine: true, id: i.id }));
     $("img-gallery").innerHTML = mine
       .concat(preset)
       .map((g) => {
         return (
-          '<button type="button" class="gal-item ' +
-          (g.src === current ? "selected" : "") +
-          '" data-src="' +
-          UI.esc(g.src) +
-          '" title="' +
-          UI.esc(g.name) +
-          '">' +
-          '<img src="' +
-          UI.esc(UI.img(g.src)) +
-          '" alt="">' +
-          (g.mine
-            ? '<span class="gal-tag">Của bạn</span><span class="gal-del" data-del="' +
-              g.id +
-              '" title="Xóa ảnh khỏi lựa chọn">×</span>'
-            : "") +
-          '<span class="gal-name">' +
-          UI.esc(g.name) +
-          "</span></button>"
+          '<button type="button" class="gal-item ' + (g.src === current ? "selected" : "") + '" data-src="' + UI.esc(g.src) + '" title="' + UI.esc(g.name) + '">' +
+          '<img src="' + UI.esc(UI.img(g.src)) + '" alt="">' +
+          (g.mine ? '<span class="gal-tag">Của bạn</span><span class="gal-del" data-del="' + g.id + '" title="Xóa ảnh khỏi lựa chọn">×</span>' : "") +
+          '<span class="gal-name">' + UI.esc(g.name) + "</span></button>"
         );
       })
       .join("");
@@ -293,11 +199,7 @@ function initCoursePage() {
   ];
   // Link YouTube (watch / youtu.be / embed) -> link nhúng; không phải YouTube thì trả "" (giống course-detail-render.js)
   function youtubeEmbed(url) {
-    const m = String(url || "")
-      .trim()
-      .match(
-        /^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/i,
-      );
+    const m = String(url || "").trim().match(/^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/i);
     return m ? "https://www.youtube.com/embed/" + m[1] : "";
   }
   function youtubeId(url) {
@@ -338,9 +240,7 @@ function initCoursePage() {
     const h = Math.floor(sec / 3600);
     const m = Math.floor((sec % 3600) / 60);
     const ss = String(sec % 60).padStart(2, "0");
-    return h > 0
-      ? h + ":" + String(m).padStart(2, "0") + ":" + ss
-      : String(m).padStart(2, "0") + ":" + ss;
+    return h > 0 ? h + ":" + String(m).padStart(2, "0") + ":" + ss : String(m).padStart(2, "0") + ":" + ss;
   }
 
   // Tạo 1 player ẩn, đọc độ dài video rồi hủy. Trả về "mm:ss" hoặc ném lỗi
@@ -349,8 +249,7 @@ function initCoursePage() {
       () =>
         new Promise((resolve, reject) => {
           const holder = document.createElement("div");
-          holder.style.cssText =
-            "position:fixed;left:-9999px;top:0;width:200px;height:120px";
+          holder.style.cssText = "position:fixed;left:-9999px;top:0;width:200px;height:120px";
           const target = document.createElement("div");
           holder.appendChild(target);
           document.body.appendChild(holder);
@@ -383,19 +282,12 @@ function initCoursePage() {
               onError: () => finish(new Error("embed")),
             },
           });
-        }),
+        })
     );
   }
 
-  const lines = (text) =>
-    String(text || "")
-      .split("\n")
-      .map((t) => t.trim())
-      .filter(Boolean);
-  const monthNow = () =>
-    String(new Date().getMonth() + 1).padStart(2, "0") +
-    "/" +
-    new Date().getFullYear();
+  const lines = (text) => String(text || "").split("\n").map((t) => t.trim()).filter(Boolean);
+  const monthNow = () => String(new Date().getMonth() + 1).padStart(2, "0") + "/" + new Date().getFullYear();
 
   function chapterRow(ch) {
     const div = document.createElement("div");
@@ -405,34 +297,27 @@ function initCoursePage() {
       '<button type="button" class="icon-btn danger" title="Xóa chương" data-remove><i class="fa-solid fa-trash"></i></button></div>' +
       '<div class="repeat-head"><input type="text" class="ch-video" maxlength="200" placeholder="Link video học thử YouTube (không bắt buộc)">' +
       '<input type="text" class="ch-time" maxlength="8" style="flex:0 0 110px" placeholder="Thời lượng 05:30">' +
-      "</div>" +
+      '</div>' +
       '<div class="ch-msg" aria-live="polite"></div>' +
       '<label class="check-line ch-free-line"><input type="checkbox" class="ch-free"> Cho xem thử miễn phí</label>' +
       '<textarea class="ch-lessons" placeholder="Mỗi dòng 1 nội dung, VD:&#10;React là gì: Khái niệm và lợi ích khi sử dụng.&#10;Virtual DOM: Cách Virtual DOM tăng hiệu suất."></textarea>';
     div.querySelector(".ch-title").value = (ch && ch.title) || "";
     div.querySelector(".ch-video").value = (ch && ch.trialVideo) || "";
     div.querySelector(".ch-time").value = (ch && ch.trialTime) || "";
-    div.querySelector(".ch-lessons").value =
-      ch && ch.lessons ? ch.lessons.join("\n") : "";
-    div.querySelector(".ch-free").checked =
-      ch && ch.trialFree !== undefined ? !!ch.trialFree : true; // chương mới: mặc định cho xem thử
+    div.querySelector(".ch-lessons").value = ch && ch.lessons ? ch.lessons.join("\n") : "";
+    div.querySelector(".ch-free").checked = ch && ch.trialFree !== undefined ? !!ch.trialFree : true; // chương mới: mặc định cho xem thử
     return div;
   }
 
   function perkRow(perk) {
     const div = document.createElement("div");
     div.className = "repeat-item perk-row";
-    const opts = PERK_ICONS.map(
-      (i) => '<option value="' + i[0] + '">' + i[1] + "</option>",
-    ).join("");
+    const opts = PERK_ICONS.map((i) => '<option value="' + i[0] + '">' + i[1] + "</option>").join("");
     div.innerHTML =
-      '<div class="repeat-head"><select class="pk-icon">' +
-      opts +
-      "</select>" +
+      '<div class="repeat-head"><select class="pk-icon">' + opts + "</select>" +
       '<input type="text" class="pk-text" maxlength="100" placeholder="VD: Thời lượng 15 buổi (3 tháng)">' +
       '<button type="button" class="icon-btn danger" title="Xóa dòng" data-remove><i class="fa-solid fa-trash"></i></button></div>';
-    div.querySelector(".pk-icon").value =
-      (perk && perk.icon) || PERK_ICONS[0][0];
+    div.querySelector(".pk-icon").value = (perk && perk.icon) || PERK_ICONS[0][0];
     div.querySelector(".pk-text").value = (perk && perk.text) || "";
     return div;
   }
@@ -444,16 +329,8 @@ function initCoursePage() {
       ? list
           .map((c) => {
             return (
-              '<label class="pick-item"><input type="checkbox" value="' +
-              UI.esc(c.id) +
-              '"' +
-              (selected.includes(c.id) ? " checked" : "") +
-              ">" +
-              '<span class="pick-name"><div class="cell-title">' +
-              UI.esc(c.name) +
-              '</div><div class="cell-sub">' +
-              UI.esc(c.id) +
-              "</div></span></label>"
+              '<label class="pick-item"><input type="checkbox" value="' + UI.esc(c.id) + '"' + (selected.includes(c.id) ? " checked" : "") + ">" +
+              '<span class="pick-name"><div class="cell-title">' + UI.esc(c.name) + '</div><div class="cell-sub">' + UI.esc(c.id) + "</div></span></label>"
             );
           })
           .join("")
@@ -480,14 +357,11 @@ function initCoursePage() {
     $("chapter-list").innerHTML = "";
     const oldFree = d.freeTrial === 1 ? 1 : 2; // dữ liệu cũ chưa có cờ riêng từng chương: n chương đầu là miễn phí
     (d.chapters && d.chapters.length ? d.chapters : [{}]).forEach((ch, i) => {
-      if (d.chapters && d.chapters.length && ch.trialFree === undefined)
-        ch = Object.assign({}, ch, { trialFree: i < oldFree });
+      if (d.chapters && d.chapters.length && ch.trialFree === undefined) ch = Object.assign({}, ch, { trialFree: i < oldFree });
       $("chapter-list").appendChild(chapterRow(ch));
     });
     $("perk-list").innerHTML = "";
-    (d.perks && d.perks.length ? d.perks : DEFAULT_PERKS).forEach((pk) =>
-      $("perk-list").appendChild(perkRow(pk)),
-    );
+    (d.perks && d.perks.length ? d.perks : DEFAULT_PERKS).forEach((pk) => $("perk-list").appendChild(perkRow(pk)));
     renderRelatedPick(d.related || []);
     setContentMode(d.contentMode === "related" ? "related" : "collapse");
     $("e-videoUrl").textContent = "";
@@ -498,9 +372,7 @@ function initCoursePage() {
   function collectDetail() {
     const errors = {};
     const mode = $("f-contentMode").value;
-    const chapters = Array.from(
-      $("chapter-list").querySelectorAll(".chapter-row"),
-    )
+    const chapters = Array.from($("chapter-list").querySelectorAll(".chapter-row"))
       .map((row) => ({
         title: row.querySelector(".ch-title").value.trim(),
         trialVideo: row.querySelector(".ch-video").value.trim(),
@@ -509,41 +381,21 @@ function initCoursePage() {
         lessons: lines(row.querySelector(".ch-lessons").value),
       }))
       .filter((ch) => ch.title || ch.lessons.length || ch.trialVideo);
-    const related = Array.from(
-      $("related-list").querySelectorAll("input:checked"),
-    ).map((i) => i.value);
+    const related = Array.from($("related-list").querySelectorAll("input:checked")).map((i) => i.value);
     const perks = Array.from($("perk-list").querySelectorAll(".perk-row"))
-      .map((row) => ({
-        icon: row.querySelector(".pk-icon").value,
-        text: row.querySelector(".pk-text").value.trim(),
-      }))
+      .map((row) => ({ icon: row.querySelector(".pk-icon").value, text: row.querySelector(".pk-text").value.trim() }))
       .filter((pk) => pk.text);
     const video = $("f-videoUrl").value.trim();
 
     // Link học thử sai: báo ngay cạnh ô nhập của chương đó
-    Array.from($("chapter-list").querySelectorAll(".chapter-row")).forEach(
-      (row) => {
-        const v = row.querySelector(".ch-video").value.trim();
-        if (v && !youtubeId(v)) setChMsg(row, "err", BAD_LINK_MSG);
-      },
-    );
-    if (video && !youtubeEmbed(video))
-      errors.videoUrl = "Chỉ hỗ trợ link YouTube (youtube.com hoặc youtu.be).";
-    if (mode === "collapse" && chapters.some((ch) => !ch.title))
-      errors.content = "Mỗi chương cần có tiêu đề.";
-    else if (
-      mode === "collapse" &&
-      chapters.some((ch) => ch.trialVideo && !youtubeEmbed(ch.trialVideo))
-    )
-      errors.content =
-        "Link video học thử chỉ hỗ trợ YouTube (youtube.com hoặc youtu.be).";
-    else if (
-      mode === "collapse" &&
-      chapters.some(
-        (ch) => ch.trialTime && !/^\d{1,2}(:\d{2}){1,2}$/.test(ch.trialTime),
-      )
-    )
-      errors.content = "Thời lượng video viết dạng 05:30 hoặc 1:05:30.";
+    Array.from($("chapter-list").querySelectorAll(".chapter-row")).forEach((row) => {
+      const v = row.querySelector(".ch-video").value.trim();
+      if (v && !youtubeId(v)) setChMsg(row, "err", BAD_LINK_MSG);
+    });
+    if (video && !youtubeEmbed(video)) errors.videoUrl = "Chỉ hỗ trợ link YouTube (youtube.com hoặc youtu.be).";
+    if (mode === "collapse" && chapters.some((ch) => !ch.title)) errors.content = "Mỗi chương cần có tiêu đề.";
+    else if (mode === "collapse" && chapters.some((ch) => ch.trialVideo && !youtubeEmbed(ch.trialVideo))) errors.content = "Link video học thử chỉ hỗ trợ YouTube (youtube.com hoặc youtu.be).";
+    else if (mode === "collapse" && chapters.some((ch) => ch.trialTime && !/^\d{1,2}(:\d{2}){1,2}$/.test(ch.trialTime))) errors.content = "Thời lượng video viết dạng 05:30 hoặc 1:05:30.";
 
     return {
       errors: errors,
@@ -569,12 +421,7 @@ function initCoursePage() {
     const doc = new DOMParser().parseFromString(html, "text/html");
     const txt = (el) => (el ? el.textContent.replace(/\s+/g, " ").trim() : "");
     const all = (sel, root) => Array.from((root || doc).querySelectorAll(sel));
-    const d = {
-      contentMode: "collapse",
-      chapters: [],
-      related: [],
-      policies: true,
-    };
+    const d = { contentMode: "collapse", chapters: [], related: [], policies: true };
 
     const meta = all(".section-one .course-element li");
     const val = (li) => (li ? txt(li.querySelectorAll("span")[1]) : "");
@@ -589,9 +436,7 @@ function initCoursePage() {
       const m = f && (f.getAttribute("src") || "").match(/embed\/([\w-]{11})/);
       d.videoUrl = m ? "https://www.youtube.com/watch?v=" + m[1] : "";
     }
-    d.learn = all(".content-child.item-2 .lesson-content li")
-      .map(txt)
-      .filter(Boolean);
+    d.learn = all(".content-child.item-2 .lesson-content li").map(txt).filter(Boolean);
 
     const cards = all(".content-child.item-3 .accordion .card");
     if (cards.length) {
@@ -606,24 +451,14 @@ function initCoursePage() {
           lessons.push(txt(clone));
           all("li", nested).forEach((n) => lessons.push(txt(n)));
         });
-        return {
-          title: txt(spans[spans.length - 1]),
-          trialVideo: "",
-          trialTime: "",
-          lessons: lessons.filter(Boolean),
-        };
+        return { title: txt(spans[spans.length - 1]), trialVideo: "", trialTime: "", lessons: lessons.filter(Boolean) };
       });
     } else {
       // Dạng combo: các khối khóa học liên quan -> khớp với khóa học trong Store theo tên file
       const ids = [];
       all(".content-child.item-3 .inner-box a[href]").forEach((a) => {
-        const file = (a.getAttribute("href") || "")
-          .split("/")
-          .pop()
-          .toLowerCase();
-        const c = Store.getCourses(false).find(
-          (x) => x.href && x.href.split("/").pop().toLowerCase() === file,
-        );
+        const file = (a.getAttribute("href") || "").split("/").pop().toLowerCase();
+        const c = Store.getCourses(false).find((x) => x.href && x.href.split("/").pop().toLowerCase() === file);
         if (c && !ids.includes(c.id)) ids.push(c.id);
       });
       if (ids.length) {
@@ -633,10 +468,7 @@ function initCoursePage() {
     }
     d.audience = all(".content-child.item-4 li").map(txt).filter(Boolean);
     d.perks = all(".side-bar-sticky .desc li").map((li) => ({
-      icon:
-        (li.querySelector("i") &&
-          li.querySelector("i").getAttribute("class")) ||
-        PERK_ICONS[0][0],
+      icon: (li.querySelector("i") && li.querySelector("i").getAttribute("class")) || PERK_ICONS[0][0],
       text: txt(li),
     }));
     return d;
@@ -696,20 +528,17 @@ function initCoursePage() {
       $("btn-save").disabled = true;
       $("detail-status").textContent = "Đang đọc nội dung trang khóa học...";
       const openedId = id;
-      loadStaticDetail(c)
-        .catch(() => null)
-        .then((d) => {
-          if (editingId !== openedId) return; // đã đóng / mở khóa khác
-          $("btn-save").disabled = false;
-          if (d) {
-            fillDetail(d);
-            $("detail-status").textContent = "";
-          } else {
-            $("detail-status").textContent =
-              "Không đọc được nội dung trang (cần mở website bằng Live Server). Các ô bên dưới đang trống.";
-          }
-          detailSnap = JSON.stringify(collectDetail().detail);
-        });
+      loadStaticDetail(c).catch(() => null).then((d) => {
+        if (editingId !== openedId) return; // đã đóng / mở khóa khác
+        $("btn-save").disabled = false;
+        if (d) {
+          fillDetail(d);
+          $("detail-status").textContent = "";
+        } else {
+          $("detail-status").textContent = "Không đọc được nội dung trang (cần mở website bằng Live Server). Các ô bên dưới đang trống.";
+        }
+        detailSnap = JSON.stringify(collectDetail().detail);
+      });
     }
     updatePriceHint();
     UI.openModal("course-modal");
@@ -735,60 +564,35 @@ function initCoursePage() {
     $("e-content").textContent = extra.errors.content || "";
     // Khóa có sẵn trong HTML: chỉ ghi đè nội dung trang khi admin THỰC SỰ sửa (giữ nguyên trang gốc nếu không đổi)
     if (!editing || editing.custom) data.detail = extra.detail;
-    else if (
-      editing.detailOverride ||
-      JSON.stringify(extra.detail) !== detailSnap
-    ) {
+    else if (editing.detailOverride || JSON.stringify(extra.detail) !== detailSnap) {
       data.detail = extra.detail;
       data.detailOverride = true;
     }
-    if (
-      Object.keys(errors).length > 0 ||
-      Object.keys(extra.errors).length > 0
-    ) {
+    if (Object.keys(errors).length > 0 || Object.keys(extra.errors).length > 0) {
       // Form dài: cuộn tới thông báo lỗi đầu tiên để người dùng thấy ngay lý do chưa lưu được
-      const firstErr = Array.from(
-        $("course-modal").querySelectorAll(".error-text"),
-      ).find((el) => el.textContent.trim());
-      if (firstErr)
-        firstErr.scrollIntoView({ behavior: "smooth", block: "center" });
-      UI.toast(
-        "Chưa lưu được: " +
-          (firstErr
-            ? firstErr.textContent.trim()
-            : "vui lòng kiểm tra lại các ô báo lỗi."),
-        "error",
-      );
+      const firstErr = Array.from($("course-modal").querySelectorAll(".error-text")).find((el) => el.textContent.trim());
+      if (firstErr) firstErr.scrollIntoView({ behavior: "smooth", block: "center" });
+      UI.toast("Chưa lưu được: " + (firstErr ? firstErr.textContent.trim() : "vui lòng kiểm tra lại các ô báo lỗi."), "error");
       return;
     }
 
     if (editing) {
       if (!Store.updateCourse(editingId, data)) {
-        UI.toast(
-          "Không lưu được: bộ nhớ trình duyệt đã đầy. Hãy chọn ảnh nhỏ hơn.",
-          "error",
-        );
+        UI.toast("Không lưu được: bộ nhớ trình duyệt đã đầy. Hãy chọn ảnh nhỏ hơn.", "error");
         return;
       }
       UI.toast("Đã cập nhật khóa học. Trang chính sẽ hiển thị thông tin mới.");
     } else {
       const item = Store.addCourse(data);
       if (!item) {
-        UI.toast(
-          "Không lưu được: bộ nhớ trình duyệt đã đầy. Hãy chọn ảnh nhỏ hơn.",
-          "error",
-        );
+        UI.toast("Không lưu được: bộ nhớ trình duyệt đã đầy. Hãy chọn ảnh nhỏ hơn.", "error");
         return;
       }
       state.status = "all";
       state.search = "";
       $("search").value = "";
       state.page = 1;
-      UI.toast(
-        "Đã thêm khóa học " +
-          item.id +
-          ". Khóa học đã hiển thị ở trang Khóa học.",
-      );
+      UI.toast("Đã thêm khóa học " + item.id + ". Khóa học đã hiển thị ở trang Khóa học.");
     }
     UI.closeModal("course-modal");
     render();
@@ -802,23 +606,14 @@ function initCoursePage() {
     const yes = await UI.confirm({
       title: "Xóa khóa học " + c.id + "?",
       message:
-        "Khóa học <b>" +
-        UI.esc(c.name) +
-        "</b> sẽ bị gỡ khỏi trang chủ, trang Khóa học và không thể mua nữa." +
-        (sold > 0
-          ? "<br><br>Khóa này đã có <b>" +
-            sold +
-            " đơn hoàn thành</b>: lịch sử đơn hàng và học viên đã mua vẫn được giữ nguyên."
-          : "") +
-        (c.custom
-          ? ""
-          : "<br><br><i>Lưu ý: đây là khóa có sẵn trong file HTML, file trang vẫn còn trong dự án nhưng sẽ hiện thông báo tạm ngừng đăng ký.</i>"),
+        "Khóa học <b>" + UI.esc(c.name) + "</b> sẽ bị gỡ khỏi trang chủ, trang Khóa học và không thể mua nữa." +
+        (sold > 0 ? "<br><br>Khóa này đã có <b>" + sold + " đơn hoàn thành</b>: lịch sử đơn hàng và học viên đã mua vẫn được giữ nguyên." : "") +
+        (c.custom ? "" : "<br><br><i>Lưu ý: đây là khóa có sẵn trong file HTML, file trang vẫn còn trong dự án nhưng sẽ hiện thông báo tạm ngừng đăng ký.</i>"),
       okText: "Xóa khóa học",
       danger: true,
     });
     if (!yes) return;
-    if (!Store.deleteCourse(id))
-      return UI.toast("Không xóa được khóa học.", "error");
+    if (!Store.deleteCourse(id)) return UI.toast("Không xóa được khóa học.", "error");
     UI.toast("Đã xóa khóa học " + c.id + ".");
     render();
   }
@@ -826,17 +621,10 @@ function initCoursePage() {
   /* ---------- Sự kiện ---------- */
   $("btn-save").addEventListener("click", saveForm);
   $("btn-add").addEventListener("click", () => openForm(null));
-  $("f-contentMode").addEventListener("change", (e) =>
-    setContentMode(e.target.value),
-  );
-  $("btn-add-chapter").addEventListener("click", () =>
-    $("chapter-list").appendChild(chapterRow()),
-  );
-  $("btn-add-perk").addEventListener("click", () =>
-    $("perk-list").appendChild(perkRow()),
-  );
-  const BAD_LINK_MSG =
-    "Link không hợp lệ. Chỉ nhận link YouTube dạng youtube.com/watch?v=... hoặc youtu.be/...";
+  $("f-contentMode").addEventListener("change", (e) => setContentMode(e.target.value));
+  $("btn-add-chapter").addEventListener("click", () => $("chapter-list").appendChild(chapterRow()));
+  $("btn-add-perk").addEventListener("click", () => $("perk-list").appendChild(perkRow()));
+  const BAD_LINK_MSG = "Link không hợp lệ. Chỉ nhận link YouTube dạng youtube.com/watch?v=... hoặc youtu.be/...";
 
   function setChMsg(row, type, text) {
     const el = row.querySelector(".ch-msg");
@@ -868,11 +656,7 @@ function initCoursePage() {
       setChMsg(row, "ok", "✓ Đã tự điền thời lượng " + dur);
     } catch (e) {
       if (token !== row._videoToken) return;
-      setChMsg(
-        row,
-        "err",
-        "Không lấy được thời lượng tự động (video riêng tư, chặn nhúng hoặc chưa có mạng). Hãy nhập tay vào ô thời lượng.",
-      );
+      setChMsg(row, "err", "Không lấy được thời lượng tự động (video riêng tư, chặn nhúng hoặc chưa có mạng). Hãy nhập tay vào ô thời lượng.");
     }
   }
 
@@ -889,7 +673,7 @@ function initCoursePage() {
     box.addEventListener("click", (e) => {
       const rm = e.target.closest("[data-remove]");
       if (rm) rm.closest(".repeat-item").remove();
-    }),
+    })
   );
   $("f-price").addEventListener("input", updatePriceHint);
 
@@ -902,17 +686,13 @@ function initCoursePage() {
       if (!img) return;
       const yes = await UI.confirm({
         title: "Xóa ảnh khỏi lựa chọn?",
-        message:
-          "Ảnh <b>" +
-          UI.esc(img.name) +
-          "</b> sẽ không còn trong danh sách chọn. Khóa học đang dùng ảnh này vẫn giữ nguyên ảnh của nó.",
+        message: 'Ảnh <b>' + UI.esc(img.name) + "</b> sẽ không còn trong danh sách chọn. Khóa học đang dùng ảnh này vẫn giữ nguyên ảnh của nó.",
         okText: "Xóa ảnh",
         danger: true,
       });
       if (!yes) return;
       Store.deleteLibraryImage(img.id);
-      if ($("f-image").value === img.src)
-        setImage(""); // đang chọn ảnh vừa xóa thì bỏ chọn
+      if ($("f-image").value === img.src) setImage(""); // đang chọn ảnh vừa xóa thì bỏ chọn
       else renderGallery();
       UI.toast("Đã xóa ảnh khỏi lựa chọn.", "info");
       return;
@@ -939,10 +719,8 @@ function initCoursePage() {
       pendingImage = dataUrl;
       $("e-upload").textContent = "";
       $("up-file").textContent = file.name;
-      $("image-preview").innerHTML =
-        '<img src="' + UI.esc(dataUrl) + '" alt="">'; // xem trước
-      if (!$("up-name").value)
-        $("up-name").value = file.name.replace(/\.[^.]+$/, "").slice(0, 40);
+      $("image-preview").innerHTML = '<img src="' + UI.esc(dataUrl) + '" alt="">'; // xem trước
+      if (!$("up-name").value) $("up-name").value = file.name.replace(/\.[^.]+$/, "").slice(0, 40);
     });
   });
   $("btn-save-image").addEventListener("click", () => {
@@ -953,7 +731,7 @@ function initCoursePage() {
     }
     resetUpload();
     setImage(res.image.src); // lưu xong tự chọn luôn ảnh này
-    UI.toast('Đã lưu ảnh "' + res.image.name + '" vào lựa chọn.');
+    UI.toast("Đã lưu ảnh \"" + res.image.name + "\" vào lựa chọn.");
   });
 
   $("search").addEventListener(
@@ -962,7 +740,7 @@ function initCoursePage() {
       state.search = e.target.value;
       state.page = 1;
       render();
-    }, 200),
+    }, 200)
   );
   $("status-tabs").addEventListener("click", (e) => {
     const tab = e.target.closest("[data-status]");
@@ -971,10 +749,7 @@ function initCoursePage() {
     state.page = 1;
     render();
   });
-  [
-    ["view-table", "table"],
-    ["view-card", "card"],
-  ].forEach(([id, view]) => {
+  [["view-table", "table"], ["view-card", "card"]].forEach(([id, view]) => {
     $(id).addEventListener("click", () => {
       state.view = view;
       state.page = 1;
@@ -990,10 +765,6 @@ function initCoursePage() {
     const id = btn.dataset.id;
 
     if (btn.dataset.action === "edit") openForm(id);
-    if (btn.dataset.action === "view") {
-      const c = Store.getCourse(id);
-      if (c && c.href) window.open(UI.courseLink(c), "_blank");
-    }
     if (btn.dataset.action === "delete") deleteCourse(id);
   });
 
@@ -1001,11 +772,7 @@ function initCoursePage() {
     if (e.target.dataset.action !== "toggle") return;
     const status = e.target.checked ? "active" : "hidden";
     Store.setCourseStatus(e.target.dataset.id, status);
-    UI.toast(
-      status === "active"
-        ? "Khóa học đã hiển thị trên website."
-        : "Khóa học đã được ẩn khỏi các trang chính.",
-    );
+    UI.toast(status === "active" ? "Khóa học đã hiển thị trên website." : "Khóa học đã được ẩn khỏi các trang chính.");
     render();
   });
 

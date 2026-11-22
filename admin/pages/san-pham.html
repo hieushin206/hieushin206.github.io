@@ -19,15 +19,10 @@
       <div class="page-head">
         <div>
           <h1>Quản lý khóa học</h1>
-          <p>
-            Thêm khóa học mới, chỉnh sửa, xóa và kiểm soát hiển thị trên
-            website.
-          </p>
+          <p>Thêm khóa học mới, chỉnh sửa, xóa và kiểm soát hiển thị trên website.</p>
         </div>
         <div class="page-actions">
-          <button class="btn btn-primary" id="btn-add">
-            <i class="fa-solid fa-plus"></i> Thêm khóa học mới
-          </button>
+          <button class="btn btn-primary" id="btn-add"><i class="fa-solid fa-plus"></i> Thêm khóa học mới</button>
         </div>
       </div>
 
@@ -36,19 +31,11 @@
         <div class="toolbar">
           <div class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input
-              type="text"
-              id="search"
-              placeholder="Tìm theo tên, mã khóa học..."
-            />
+            <input type="text" id="search" placeholder="Tìm theo tên, mã khóa học..." />
           </div>
           <div class="view-toggle">
-            <button id="view-table" title="Dạng bảng">
-              <i class="fa-solid fa-table-list"></i>
-            </button>
-            <button id="view-card" title="Dạng thẻ">
-              <i class="fa-solid fa-table-cells-large"></i>
-            </button>
+            <button id="view-table" title="Dạng bảng"><i class="fa-solid fa-table-list"></i></button>
+            <button id="view-card" title="Dạng thẻ"><i class="fa-solid fa-table-cells-large"></i></button>
           </div>
         </div>
         <!-- Tab lọc theo trạng thái -->
@@ -65,22 +52,13 @@
       <div class="modal-box modal-lg">
         <div class="modal-header">
           <h3 id="course-modal-title">Chỉnh sửa khóa học</h3>
-          <button class="modal-close" data-close>
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+          <button class="modal-close" data-close><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="modal-body">
-          <div class="form-section-title">
-            <span>1</span> Thông tin chung &amp; hiển thị ở danh sách
-          </div>
+          <div class="form-section-title"><span>1</span> Thông tin chung &amp; hiển thị ở danh sách</div>
           <div class="form-group">
             <label>Tên khóa học <span class="req">*</span></label>
-            <input
-              type="text"
-              id="f-name"
-              maxlength="120"
-              placeholder="VD: Khóa Học React Nâng Cao"
-            />
+            <input type="text" id="f-name" maxlength="120" placeholder="VD: Khóa Học React Nâng Cao" />
             <div class="error-text" id="e-name"></div>
           </div>
           <div class="form-row">
@@ -95,76 +73,33 @@
           <div class="form-row">
             <div class="form-group">
               <label>Giá bán (đ) <span class="req">*</span></label>
-              <input
-                type="number"
-                id="f-price"
-                min="0"
-                step="1000"
-                placeholder="VD: 7600000"
-              />
+              <input type="number" id="f-price" min="0" step="1000" placeholder="VD: 7600000" />
               <div class="hint" id="price-hint"></div>
               <div class="error-text" id="e-price"></div>
             </div>
             <div class="form-group">
               <label>Giá gốc (đ) - không bắt buộc</label>
-              <input
-                type="number"
-                id="f-oldPrice"
-                min="0"
-                step="1000"
-                placeholder="Giá trước khi giảm"
-              />
+              <input type="number" id="f-oldPrice" min="0" step="1000" placeholder="Giá trước khi giảm" />
               <div class="error-text" id="e-oldPrice"></div>
             </div>
           </div>
           <div class="form-group">
             <label>Ảnh khóa học <span class="req">*</span></label>
             <div class="image-picker">
-              <div class="image-preview" id="image-preview">
-                <i class="fa-regular fa-image"></i>
-              </div>
+              <div class="image-preview" id="image-preview"><i class="fa-regular fa-image"></i></div>
               <div class="image-controls">
-                <div class="hint" style="margin-top: 0">
-                  Bấm vào 1 ảnh để chọn. Ảnh bạn tải lên có nút <b>×</b> để xóa
-                  khỏi lựa chọn.
-                </div>
+                <div class="hint" style="margin-top: 0">Bấm vào 1 ảnh để chọn. Ảnh bạn tải lên có nút <b>×</b> để xóa khỏi lựa chọn.</div>
                 <div class="img-gallery" id="img-gallery"></div>
                 <div class="img-upload">
-                  <div class="img-upload-title">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> Tải ảnh mới lên
+                  <div class="img-upload-title"><i class="fa-solid fa-cloud-arrow-up"></i> Tải ảnh mới lên</div>
+                  <div class="img-upload-row">
+                    <button type="button" class="btn btn-outline btn-sm" id="btn-upload"><i class="fa-solid fa-image"></i> Chọn ảnh từ máy</button>
+                    <input type="file" id="file-input" accept="image/*" hidden />
+                    <span class="img-upload-file" id="up-file">Chưa chọn ảnh</span>
                   </div>
                   <div class="img-upload-row">
-                    <button
-                      type="button"
-                      class="btn btn-outline btn-sm"
-                      id="btn-upload"
-                    >
-                      <i class="fa-solid fa-image"></i> Chọn ảnh từ máy
-                    </button>
-                    <input
-                      type="file"
-                      id="file-input"
-                      accept="image/*"
-                      hidden
-                    />
-                    <span class="img-upload-file" id="up-file"
-                      >Chưa chọn ảnh</span
-                    >
-                  </div>
-                  <div class="img-upload-row">
-                    <input
-                      type="text"
-                      id="up-name"
-                      maxlength="40"
-                      placeholder="Đặt tên cho ảnh (VD: Banner React mới)"
-                    />
-                    <button
-                      type="button"
-                      class="btn btn-primary btn-sm"
-                      id="btn-save-image"
-                    >
-                      <i class="fa-solid fa-plus"></i> Lưu vào lựa chọn
-                    </button>
+                    <input type="text" id="up-name" maxlength="40" placeholder="Đặt tên cho ảnh (VD: Banner React mới)" />
+                    <button type="button" class="btn btn-primary btn-sm" id="btn-save-image"><i class="fa-solid fa-plus"></i> Lưu vào lựa chọn</button>
                   </div>
                   <div class="error-text" id="e-upload"></div>
                 </div>
@@ -175,112 +110,55 @@
           </div>
           <div class="form-group">
             <label>Mô tả ngắn</label>
-            <textarea
-              id="f-description"
-              maxlength="600"
-              placeholder="Giới thiệu ngắn về khóa học..."
-            ></textarea>
+            <textarea id="f-description" maxlength="600" placeholder="Giới thiệu ngắn về khóa học..."></textarea>
           </div>
 
           <!-- Nội dung trang chi tiết: chỉ hiện khi thêm mới / sửa khóa học tự tạo -->
           <div id="detail-fields">
-            <div
-              class="hint"
-              id="detail-status"
-              style="margin-bottom: 10px"
-            ></div>
-            <div class="form-section-title">
-              <span>2</span> Đầu trang chi tiết <small>(section-one)</small>
-            </div>
+            <div class="hint" id="detail-status" style="margin-bottom: 10px"></div>
+            <div class="form-section-title"><span>2</span> Đầu trang chi tiết <small>(section-one)</small></div>
             <div class="form-row">
               <div class="form-group">
                 <label>Ngày cập nhật</label>
-                <input
-                  type="text"
-                  id="f-updatedAt"
-                  maxlength="20"
-                  placeholder="VD: 11/2026"
-                />
+                <input type="text" id="f-updatedAt" maxlength="20" placeholder="VD: 11/2026" />
               </div>
               <div class="form-group">
                 <label>Số học viên hiển thị</label>
-                <input
-                  type="number"
-                  id="f-students"
-                  min="0"
-                  step="1"
-                  placeholder="VD: 120"
-                />
+                <input type="number" id="f-students" min="0" step="1" placeholder="VD: 120" />
               </div>
             </div>
 
-            <div class="form-section-title">
-              <span>3</span> Nội dung chính <small>(section-two)</small>
-            </div>
-            <div class="block-label">
-              Khối giới thiệu <small>(item-1, không bắt buộc)</small>
-            </div>
+            <div class="form-section-title"><span>3</span> Nội dung chính <small>(section-two)</small></div>
+            <div class="block-label">Khối giới thiệu <small>(item-1, không bắt buộc)</small></div>
             <div class="form-group">
               <label>Tiêu đề</label>
-              <input
-                type="text"
-                id="f-introTitle"
-                maxlength="150"
-                placeholder="VD: Tại sao bạn học lập trình mãi không tiến bộ?"
-              />
+              <input type="text" id="f-introTitle" maxlength="150" placeholder="VD: Tại sao bạn học lập trình mãi không tiến bộ?" />
             </div>
             <div class="form-group">
               <label>Đoạn văn</label>
-              <textarea
-                id="f-introText"
-                maxlength="800"
-                placeholder="Nội dung giới thiệu..."
-              ></textarea>
+              <textarea id="f-introText" maxlength="800" placeholder="Nội dung giới thiệu..."></textarea>
             </div>
             <div class="form-group">
               <label>Link video YouTube</label>
-              <input
-                type="text"
-                id="f-videoUrl"
-                maxlength="200"
-                placeholder="VD: https://www.youtube.com/watch?v=..."
-              />
+              <input type="text" id="f-videoUrl" maxlength="200" placeholder="VD: https://www.youtube.com/watch?v=..." />
               <div class="error-text" id="e-videoUrl"></div>
             </div>
 
-            <div class="block-label">
-              Bạn sẽ học được gì? <small>(item-2)</small>
-            </div>
+            <div class="block-label">Bạn sẽ học được gì? <small>(item-2)</small></div>
             <div class="form-group">
-              <textarea
-                id="f-learn"
-                rows="5"
-                placeholder="Mỗi dòng là một ý, ví dụ:&#10;Hiểu rõ khái niệm nền tảng&#10;Thành thạo cú pháp cơ bản"
-              ></textarea>
+              <textarea id="f-learn" rows="5" placeholder="Mỗi dòng là một ý, ví dụ:&#10;Hiểu rõ khái niệm nền tảng&#10;Thành thạo cú pháp cơ bản"></textarea>
             </div>
 
-            <div class="block-label">
-              Nội dung khóa học <small>(item-3)</small>
-            </div>
+            <div class="block-label">Nội dung khóa học <small>(item-3)</small></div>
             <div class="form-group">
               <select id="f-contentMode">
-                <option value="collapse">
-                  Chương học - bấm để mở / đóng (Collapse)
-                </option>
-                <option value="related">
-                  Khối khóa học liên quan (dùng cho combo)
-                </option>
+                <option value="collapse">Chương học - bấm để mở / đóng (Collapse)</option>
+                <option value="related">Khối khóa học liên quan (dùng cho combo)</option>
               </select>
             </div>
             <div id="mode-collapse">
               <div class="repeat-list" id="chapter-list"></div>
-              <button
-                type="button"
-                class="btn btn-outline btn-sm"
-                id="btn-add-chapter"
-              >
-                <i class="fa-solid fa-plus"></i> Thêm chương
-              </button>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-add-chapter"><i class="fa-solid fa-plus"></i> Thêm chương</button>
             </div>
             <div id="mode-related" hidden>
               <div class="pick-list" id="related-list"></div>
@@ -289,37 +167,19 @@
 
             <div class="block-label">Đối tượng học <small>(item-4)</small></div>
             <div class="form-group">
-              <textarea
-                id="f-audience"
-                rows="4"
-                placeholder="Mỗi dòng là một đối tượng, ví dụ:&#10;Sinh viên CNTT muốn bổ túc kiến thức&#10;Người trái ngành muốn chuyển sang lập trình"
-              ></textarea>
+              <textarea id="f-audience" rows="4" placeholder="Mỗi dòng là một đối tượng, ví dụ:&#10;Sinh viên CNTT muốn bổ túc kiến thức&#10;Người trái ngành muốn chuyển sang lập trình"></textarea>
             </div>
 
-            <label class="check-line" id="policy-row"
-              ><input type="checkbox" id="f-policies" checked /> Hiển thị các
-              mục chính sách chung của LetDiv (học 1 kèm 1, học online, lịch học
-              linh hoạt, hỗ trợ việc làm, hoàn tiền)</label
-            >
+            <label class="check-line" id="policy-row"><input type="checkbox" id="f-policies" checked /> Hiển thị các mục chính sách chung của LetDiv (học 1 kèm 1, học online, lịch học linh hoạt, hỗ trợ việc làm, hoàn tiền)</label>
 
-            <div class="form-section-title">
-              <span>4</span> Hộp bên phải <small>(side-bar-sticky)</small>
-            </div>
+            <div class="form-section-title"><span>4</span> Hộp bên phải <small>(side-bar-sticky)</small></div>
             <div class="repeat-list" id="perk-list"></div>
-            <button
-              type="button"
-              class="btn btn-outline btn-sm"
-              id="btn-add-perk"
-            >
-              <i class="fa-solid fa-plus"></i> Thêm dòng
-            </button>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-add-perk"><i class="fa-solid fa-plus"></i> Thêm dòng</button>
           </div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-outline" data-close>Hủy</button>
-          <button class="btn btn-primary" id="btn-save">
-            <i class="fa-solid fa-floppy-disk"></i> Lưu khóa học
-          </button>
+          <button class="btn btn-primary" id="btn-save"><i class="fa-solid fa-floppy-disk"></i> Lưu khóa học</button>
         </div>
       </div>
     </div>

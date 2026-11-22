@@ -574,39 +574,6 @@ const AuthStore = {
     ).length;
   },
 
-  // Đổi quyền: khách hàng / admin
-  setRole(username, role) {
-    if (!this.isAdmin())
-      return { ok: false, error: "Chỉ quản trị viên mới được đổi quyền." };
-    if (!AUTH_ROLES[role]) return { ok: false, error: "Quyền không hợp lệ." };
-    const me = this.currentUser();
-    if (me.username.toLowerCase() === String(username).toLowerCase()) {
-      return { ok: false, error: "Bạn không thể tự đổi quyền của chính mình." };
-    }
-    const accounts = this.getAccounts();
-    const account = accounts.find(
-      (a) => a.usernameKey === String(username).toLowerCase(),
-    );
-    if (!account) return { ok: false, error: "Không tìm thấy tài khoản." };
-    if (
-      this.roleOf(account) === "admin" &&
-      role !== "admin" &&
-      this.countActiveAdmins() <= 1
-    ) {
-      return {
-        ok: false,
-        error: "Hệ thống phải còn ít nhất 1 admin đang hoạt động.",
-      };
-    }
-    account.role = role;
-    // Chuyển về khách hàng mà chưa có hồ sơ học viên thì tạo luôn (để có mã khách hàng)
-    if (role === "customer" && !account.studentId)
-      account.studentId = this.ensureStudent(account);
-    if (!this.write(AUTH_KEYS.accounts, accounts))
-      return { ok: false, error: "Không lưu được thay đổi." };
-    return { ok: true, account: account };
-  },
-
   // Khóa / mở khóa tài khoản
   setDisabled(username, disabled) {
     if (!this.isAdmin())

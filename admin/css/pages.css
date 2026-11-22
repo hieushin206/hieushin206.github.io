@@ -1549,6 +1549,13 @@ table.data-table {
   margin-top: 2px;
 }
 
+/* Form khóa học dài: giữ thanh nút Hủy / Lưu luôn nằm cuối màn hình */
+#course-modal .modal-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 1100px) {
   .stat-grid {

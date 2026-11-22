@@ -2,8 +2,7 @@
    khach-hang.js - Trang "Học viên & tài khoản" của admin
    Chức năng: danh sách, tìm kiếm, lọc theo trạng thái và quyền,
    xem chi tiết (khóa học đã mua, lịch sử đơn), vô hiệu hóa / kích hoạt,
-   THÊM TÀI KHOẢN với quyền tùy chọn (khách hàng / admin)
-   và ĐỔI QUYỀN cho tài khoản đã có.
+   THÊM TÀI KHOẢN với quyền tùy chọn (khách hàng / admin).
    QUY TẮC: không xóa tài khoản, chỉ vô hiệu hóa để giữ lịch sử đơn hàng.
 
    Mỗi dòng trong bảng là 1 "row" gộp từ 2 nguồn:
@@ -151,7 +150,6 @@ function initStudentPage() {
             const off = r.status !== "active";
             const self = isMe(r);
             const username = r.account ? "@" + r.account.username : "Chưa có tài khoản đăng nhập";
-            const roleBtn = r.account && !self ? '<button class="icon-btn" title="Đổi quyền" data-role="' + r.key + '"><i class="fa-solid fa-user-gear"></i></button>' : "";
             const lockBtn = self
               ? ""
               : off
@@ -165,7 +163,7 @@ function initStudentPage() {
               "<td>" + UI.date(r.createdAt) + '</td><td class="num">' + st.courses + '</td><td class="num price">' + UI.money(st.spent) + "</td>" +
               "<td>" + statusBadge(r) + "</td>" +
               '<td class="actions"><button class="icon-btn" title="Xem chi tiết" data-detail="' + r.key + '"><i class="fa-regular fa-eye"></i></button>' +
-              roleBtn + lockBtn + "</td></tr>"
+              lockBtn + "</td></tr>"
             );
           })
           .join("") +
@@ -300,38 +298,6 @@ function initStudentPage() {
     render();
   }
 
-  /* ---------- Đổi quyền ---------- */
-  let roleTarget = null;
-
-  function openRoleModal(key) {
-    const r = findRow(key);
-    if (!r || !r.account) return;
-    roleTarget = r.account.username;
-    $("role-body").innerHTML =
-      '<div class="user-cell" style="margin-bottom:14px"><span class="avatar">' + UI.esc(UI.initials(r.name)) + "</span><div><div class=\"cell-title\">" + UI.esc(r.name) +
-      '</div><div class="cell-sub">@' + UI.esc(r.account.username) + " · " + UI.esc(r.code) + "</div></div></div>" +
-      '<div class="form-group"><label for="role-select">Quyền mới</label><select id="role-select">' +
-      Object.keys(AUTH_ROLES).map((k) => '<option value="' + k + '"' + (k === r.role ? " selected" : "") + ">" + AUTH_ROLES[k] + "</option>").join("") +
-      '</select></div><div class="role-note" id="role-select-note"></div>';
-    const sel = $("role-select");
-    const note = () => ($("role-select-note").innerHTML = '<i class="fa-solid fa-circle-info"></i><span>' + ROLE_NOTE[sel.value] + "</span>");
-    sel.addEventListener("change", note);
-    note();
-    UI.openModal("role-modal");
-  }
-
-  function saveRole() {
-    const role = $("role-select").value;
-    const res = AuthStore.setRole(roleTarget, role);
-    if (!res.ok) {
-      UI.toast(res.error, "error");
-      return;
-    }
-    UI.closeModal("role-modal");
-    UI.toast("Đã đổi quyền của \"" + roleTarget + "\" thành " + AuthStore.roleLabel(role) + ".");
-    render();
-  }
-
   /* ---------- Sự kiện ---------- */
   $("search").addEventListener(
     "input",
@@ -356,8 +322,6 @@ function initStudentPage() {
   $("list-area").addEventListener("click", async (e) => {
     const detail = e.target.closest("[data-detail]");
     if (detail) return openDetail(detail.dataset.detail);
-    const role = e.target.closest("[data-role]");
-    if (role) return openRoleModal(role.dataset.role);
     const toggle = e.target.closest("[data-toggle]");
     if (toggle && (await toggleStatus(toggle.dataset.toggle))) render();
   });
@@ -380,7 +344,6 @@ function initStudentPage() {
     }
   });
   $("f-role").addEventListener("change", updateRoleNote);
-  $("btn-save-role").addEventListener("click", saveRole);
   $("pw-eye").addEventListener("click", () => {
     const input = $("f-password");
     const show = input.type === "password";
