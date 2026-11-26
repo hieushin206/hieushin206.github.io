@@ -17,23 +17,48 @@ const CourseDetailRender = (function () {
     return d.innerHTML.replace(/"/g, "&quot;");
   };
   const money = (n) => Number(n).toLocaleString("vi-VN") + " đ";
-  const imgSrc = (src) => (!src ? "/assets/images/LetDiv.webp" : /^(data:|https?:|\/)/i.test(src) ? src : "/" + src);
+  const imgSrc = (src) =>
+    !src
+      ? "/assets/images/LetDiv.webp"
+      : /^(data:|https?:|\/)/i.test(src)
+        ? src
+        : "/" + src;
 
   // Link YouTube -> link nhúng (chỉ nhận youtube.com / youtu.be)
   function youtubeEmbed(url) {
-    const m = String(url || "").trim().match(/^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/i);
+    const m = String(url || "")
+      .trim()
+      .match(
+        /^https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/i,
+      );
     return m ? "https://www.youtube-nocookie.com/embed/" + m[1] : ""; // nocookie: không đặt cookie theo dõi khi chưa bấm xem
   }
 
   // "Tiêu đề: mô tả" -> <strong>Tiêu đề:</strong> mô tả
   function lessonHtml(line) {
     const i = line.indexOf(":");
-    if (i > 0 && i < 80) return "<li><strong>" + esc(line.slice(0, i + 1)) + "</strong> " + esc(line.slice(i + 1).trim()) + "</li>";
+    if (i > 0 && i < 80)
+      return (
+        "<li><strong>" +
+        esc(line.slice(0, i + 1)) +
+        "</strong> " +
+        esc(line.slice(i + 1).trim()) +
+        "</li>"
+      );
     return "<li>" + esc(line) + "</li>";
   }
 
   const list = (items) => items.map((t) => "<li>" + esc(t) + "</li>").join("");
-  const ICON_OK = ["fa-regular fa-clock", "fa-regular fa-calendar", "fa-solid fa-code", "fa-regular fa-circle-question", "fa-solid fa-video", "fa-solid fa-users", "fa-solid fa-medal", "fa-solid fa-infinity"];
+  const ICON_OK = [
+    "fa-regular fa-clock",
+    "fa-regular fa-calendar",
+    "fa-solid fa-code",
+    "fa-regular fa-circle-question",
+    "fa-solid fa-video",
+    "fa-solid fa-users",
+    "fa-solid fa-medal",
+    "fa-solid fa-infinity",
+  ];
 
   const POLICIES =
     '<div class="content-child"><h2 class="title">Học 1 Kèm 1 - Đảm bảo chất lượng Tốt Nhất</h2><ul class="content-padding">' +
@@ -56,7 +81,9 @@ const CourseDetailRender = (function () {
 
   function notFound(text) {
     root.innerHTML =
-      '<div class="section-one"><div class="container"><div class="inner-wrap"><div class="inner-content"><h1>' + esc(text) + "</h1>" +
+      '<div class="section-one"><div class="container"><div class="inner-wrap"><div class="inner-content"><h1>' +
+      esc(text) +
+      "</h1>" +
       '<p><a href="/courses/course.html" style="color:#fff;text-decoration:underline">← Quay lại danh sách khóa học</a></p></div></div></div></div>';
     document.title = "Không tìm thấy khóa học - LetDiv";
   }
@@ -66,15 +93,24 @@ const CourseDetailRender = (function () {
     const url = youtubeEmbed(ch.trialVideo);
     if (!url) return "";
     return (
-      '<div class="trial-box"><a href="#" class="trial-link" data-trial="' + esc(url) + '" data-title="' + esc(ch.title) + '"><i class="fa-solid fa-circle-play"></i> Học thử</a>' +
-      (ch.trialTime ? '<span class="trial-time">' + esc(ch.trialTime) + "</span>" : "") + "</div>"
+      '<div class="trial-box"><a href="#" class="trial-link" data-trial="' +
+      esc(url) +
+      '" data-title="' +
+      esc(ch.title) +
+      '"><i class="fa-solid fa-circle-play"></i> Học thử</a>' +
+      (ch.trialTime
+        ? '<span class="trial-time">' + esc(ch.trialTime) + "</span>"
+        : "") +
+      "</div>"
     );
   }
 
   // Số chương đầu cho xem thử miễn phí (mặc định 2)
   function freeTrialCount(d) {
     const n = Number(d && d.freeTrial);
-    return n >= 0 && n <= 10 && d.freeTrial !== undefined && d.freeTrial !== "" ? n : 2;
+    return n >= 0 && n <= 10 && d.freeTrial !== undefined && d.freeTrial !== ""
+      ? n
+      : 2;
   }
 
   // Các chương còn lại: chỉ người đã MUA khóa học mới thấy nút Học thử + thời lượng (người chưa mua thì không có trong trang)
@@ -84,12 +120,17 @@ const CourseDetailRender = (function () {
   }
 
   function unlockTrialsForOwner(course, scope) {
-    if (typeof CartStore === "undefined" || typeof AuthStore === "undefined") return;
-    if (!AuthStore.currentUser() || !CartStore.isOwned(course.id)) return;
+    if (typeof CartStore === "undefined" || typeof AuthStore === "undefined")
+      return;
+    const me = AuthStore.currentUser();
+    // Admin xem được mọi video; khách hàng chỉ xem khi đã mua khóa học (hoặc khóa nằm trong combo đã mua)
+    if (!me || (me.role !== "admin" && !CartStore.isOwned(course.id))) return;
     const d = course.detail || {};
     (d.chapters || []).forEach((ch, i) => {
       if (isFree(ch, i, d) || !youtubeEmbed(ch.trialVideo)) return;
-      const head = (scope || document).querySelector('.card-header[data-ch="' + i + '"]');
+      const head = (scope || document).querySelector(
+        '.card-header[data-ch="' + i + '"]',
+      );
       if (!head || head.querySelector(".trial-box")) return;
       head.classList.add("has-trial");
       head.insertAdjacentHTML("beforeend", trialHtml(ch));
@@ -124,20 +165,32 @@ const CourseDetailRender = (function () {
       const link = e.target.closest(".trial-link");
       if (!link) return;
       e.preventDefault();
-      box.querySelector(".trial-name").textContent = "Học thử: " + link.dataset.title;
+      box.querySelector(".trial-name").textContent =
+        "Học thử: " + link.dataset.title;
       const idMatch = link.dataset.trial.match(/embed\/([\w-]{11})/);
-      const watch = idMatch ? "https://www.youtube.com/watch?v=" + idMatch[1] : "";
-      const fallback = watch ? '<a class="trial-yt" href="' + esc(watch) + '" target="_blank" rel="noopener"><i class="fa-brands fa-youtube"></i> Mở trên YouTube</a>' : "";
+      const watch = idMatch
+        ? "https://www.youtube.com/watch?v=" + idMatch[1]
+        : "";
+      const fallback = watch
+        ? '<a class="trial-yt" href="' +
+          esc(watch) +
+          '" target="_blank" rel="noopener"><i class="fa-brands fa-youtube"></i> Mở trên YouTube</a>'
+        : "";
       const ext = box.querySelector(".trial-ext");
       ext.hidden = !watch;
       if (watch) ext.href = watch; // dự phòng: video bị chặn nhúng thì mở thẳng trên YouTube
       if (location.protocol === "file:") {
         // YouTube từ chối phát khi trang mở trực tiếp từ file (lỗi 153): hướng dẫn thay vì để khung đen
-        frame.innerHTML = '<div class="trial-note">Video YouTube không phát được khi mở trực tiếp file trên máy.<br>Hãy chạy website bằng Live Server hoặc đưa lên GitHub Pages.<br>' + fallback + "</div>";
+        frame.innerHTML =
+          '<div class="trial-note">Video YouTube không phát được khi mở trực tiếp file trên máy.<br>Hãy chạy website bằng Live Server hoặc đưa lên GitHub Pages.<br>' +
+          fallback +
+          "</div>";
       } else {
         // referrerpolicy bắt buộc có thì YouTube mới cho nhúng; thêm link dự phòng nếu video bị chặn nhúng
         frame.innerHTML =
-          '<iframe src="' + esc(link.dataset.trial) + '?autoplay=1&rel=0&modestbranding=1&playsinline=1" title="Video học thử" frameborder="0" ' +
+          '<iframe src="' +
+          esc(link.dataset.trial) +
+          '?autoplay=1&rel=0&modestbranding=1&playsinline=1" title="Video học thử" frameborder="0" ' +
           'allow="autoplay; encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>' +
           "";
       }
@@ -153,15 +206,45 @@ const CourseDetailRender = (function () {
         const free = isFree(ch, i, d); // chương tick "xem thử miễn phí" ai cũng thấy; còn lại phải mua khóa học
         const n = i + 1;
         return (
-          '<div class="card"><div class="card-header' + (free && youtubeEmbed(ch.trialVideo) ? " has-trial" : "") + '" id="heading' + n + '" data-ch="' + i + '"><h2 class="mb-0">' +
-          '<button class="btn btn-link btn-block text-left' + (i === 0 ? "" : " collapsed") + '" type="button" data-toggle="collapse" data-target="#collapse' + n + '" aria-expanded="' + (i === 0 ? "true" : "false") + '" aria-controls="collapse' + n + '">' +
-          '<span class="collapse-icon"></span><span>' + esc(ch.title) + "</span></button></h2>" + (free ? trialHtml(ch) : "") + "</div>" +
-          '<div id="collapse' + n + '" class="collapse' + (i === 0 ? " show" : "") + '" aria-labelledby="heading' + n + '" data-parent="#accordionCourse">' +
-          '<div class="card-body"><ul>' + ch.lessons.map(lessonHtml).join("") + "</ul></div></div></div>"
+          '<div class="card"><div class="card-header' +
+          (free && youtubeEmbed(ch.trialVideo) ? " has-trial" : "") +
+          '" id="heading' +
+          n +
+          '" data-ch="' +
+          i +
+          '"><h2 class="mb-0">' +
+          '<button class="btn btn-link btn-block text-left' +
+          (i === 0 ? "" : " collapsed") +
+          '" type="button" data-toggle="collapse" data-target="#collapse' +
+          n +
+          '" aria-expanded="' +
+          (i === 0 ? "true" : "false") +
+          '" aria-controls="collapse' +
+          n +
+          '">' +
+          '<span class="collapse-icon"></span><span>' +
+          esc(ch.title) +
+          "</span></button></h2>" +
+          (free ? trialHtml(ch) : "") +
+          "</div>" +
+          '<div id="collapse' +
+          n +
+          '" class="collapse' +
+          (i === 0 ? " show" : "") +
+          '" aria-labelledby="heading' +
+          n +
+          '" data-parent="#accordionCourse">' +
+          '<div class="card-body"><ul>' +
+          ch.lessons.map(lessonHtml).join("") +
+          "</ul></div></div></div>"
         );
       })
       .join("");
-    return '<div class="inner-dropdown"><div class="accordion" id="accordionCourse">' + cards + "</div></div>";
+    return (
+      '<div class="inner-dropdown"><div class="accordion" id="accordionCourse">' +
+      cards +
+      "</div></div>"
+    );
   }
 
   // item-3 dạng khối khóa học liên quan (giống trang combo)
@@ -172,12 +255,22 @@ const CourseDetailRender = (function () {
       .map((c) => {
         const href = c.href ? "/" + c.href : "#";
         return (
-          '<div class="inner-box col-xl-6 col-lg-6 col-md-6 col-sm-12"><div class="img"><a href="' + esc(href) + '"><img src="' + esc(imgSrc(c.image)) + '" alt=""></a></div>' +
-          '<div class="content"><p><a href="' + esc(href) + '">' + esc(c.name) + "</a></p></div></div>"
+          '<div class="inner-box col-xl-6 col-lg-6 col-md-6 col-sm-12"><div class="img"><a href="' +
+          esc(href) +
+          '"><img src="' +
+          esc(imgSrc(c.image)) +
+          '" alt=""></a></div>' +
+          '<div class="content"><p><a href="' +
+          esc(href) +
+          '">' +
+          esc(c.name) +
+          "</a></p></div></div>"
         );
       })
       .join("");
-    return boxes ? '<div class="inner-course"><div class="row">' + boxes + "</div></div>" : "";
+    return boxes
+      ? '<div class="inner-course"><div class="row">' + boxes + "</div></div>"
+      : "";
   }
 
   // HTML của 4 khối nội dung chính (rỗng nếu không có dữ liệu)
@@ -187,23 +280,44 @@ const CourseDetailRender = (function () {
     if (d.introTitle || d.introText || embed) {
       out[1] =
         '<div class="content-child item-1">' +
-        (d.introTitle ? '<h2 class="title">' + esc(d.introTitle) + "</h2>" : "") +
+        (d.introTitle
+          ? '<h2 class="title">' + esc(d.introTitle) + "</h2>"
+          : "") +
         (d.introText ? "<p>" + esc(d.introText) + "</p>" : "") +
-        (embed ? '<iframe class="video" width="560" height="315" src="' + esc(embed) + '" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>' : "") +
+        (embed
+          ? '<iframe class="video" width="560" height="315" src="' +
+            esc(embed) +
+            '" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
+          : "") +
         "</div>";
     }
     if (d.learn && d.learn.length) {
       out[2] =
         '<div class="content-child item-2"><h2 class="title">Bạn sẽ học được gì?</h2><ul class="lesson-content">' +
-        d.learn.map((t) => '<li><i class="fa-solid fa-check"></i><span>' + esc(t) + "</span></li>").join("") +
+        d.learn
+          .map(
+            (t) =>
+              '<li><i class="fa-solid fa-check"></i><span>' +
+              esc(t) +
+              "</span></li>",
+          )
+          .join("") +
         "</ul></div>";
     }
     let item3 = "";
     if (d.contentMode === "related") item3 = relatedHtml(d.related || []);
-    else if (d.chapters && d.chapters.length) item3 = chaptersHtml(d.chapters, d);
-    if (item3) out[3] = '<div class="content-child item-3"><h2 class="title">Nội dung khóa học</h2>' + item3 + "</div>";
+    else if (d.chapters && d.chapters.length)
+      item3 = chaptersHtml(d.chapters, d);
+    if (item3)
+      out[3] =
+        '<div class="content-child item-3"><h2 class="title">Nội dung khóa học</h2>' +
+        item3 +
+        "</div>";
     if (d.audience && d.audience.length) {
-      out[4] = '<div class="content-child item-4"><h2 class="title">Đối tượng học</h2><ul class="content-padding">' + list(d.audience) + "</ul></div>";
+      out[4] =
+        '<div class="content-child item-4"><h2 class="title">Đối tượng học</h2><ul class="content-padding">' +
+        list(d.audience) +
+        "</ul></div>";
     }
     return out;
   }
@@ -214,7 +328,16 @@ const CourseDetailRender = (function () {
     if (!perks.length) return "";
     return (
       '<div class="desc"><p>Khóa học này bao gồm</p><ul>' +
-      perks.map((p) => '<li><i class="' + (ICON_OK.indexOf(p.icon) >= 0 ? p.icon : ICON_OK[0]) + '"></i> ' + esc(p.text) + "</li>").join("") +
+      perks
+        .map(
+          (p) =>
+            '<li><i class="' +
+            (ICON_OK.indexOf(p.icon) >= 0 ? p.icon : ICON_OK[0]) +
+            '"></i> ' +
+            esc(p.text) +
+            "</li>",
+        )
+        .join("") +
       "</ul></div>"
     );
   }
@@ -235,11 +358,15 @@ const CourseDetailRender = (function () {
         if (p) p.textContent = c.description;
       } else if (p) p.remove();
       const spans = one.querySelectorAll(".course-element li");
-      if (spans[0] && d.updatedAt) spans[0].querySelectorAll("span")[1].textContent = d.updatedAt;
-      if (spans[1] && d.students !== undefined) spans[1].querySelectorAll("span")[1].textContent = d.students;
+      if (spans[0] && d.updatedAt)
+        spans[0].querySelectorAll("span")[1].textContent = d.updatedAt;
+      if (spans[1] && d.students !== undefined)
+        spans[1].querySelectorAll("span")[1].textContent = d.students;
     }
     // item-1..4
-    const wrap = document.querySelector(".section-two .inner-wrap > .inner-content");
+    const wrap = document.querySelector(
+      ".section-two .inner-wrap > .inner-content",
+    );
     if (wrap) {
       const it = itemsHtml(d);
       [1, 2, 3, 4].forEach((n) => {
@@ -250,7 +377,8 @@ const CourseDetailRender = (function () {
         } else if (it[n]) {
           // trang chưa có khối này: chèn trước khối có số lớn hơn gần nhất, nếu không có thì thêm cuối
           let next = null;
-          for (let k = n + 1; k <= 13 && !next; k++) next = wrap.querySelector(":scope > .item-" + k);
+          for (let k = n + 1; k <= 13 && !next; k++)
+            next = wrap.querySelector(":scope > .item-" + k);
           if (next) next.insertAdjacentHTML("beforebegin", it[n]);
           else wrap.insertAdjacentHTML("beforeend", it[n]);
         }
@@ -267,7 +395,8 @@ const CourseDetailRender = (function () {
       } else if (html) box.insertAdjacentHTML("beforeend", html);
     }
     setupTrialModal();
-    if (typeof AuthReady === "function") AuthReady(() => unlockTrialsForOwner(c, document));
+    if (typeof AuthReady === "function")
+      AuthReady(() => unlockTrialsForOwner(c, document));
   }
 
   function render(c) {
@@ -276,15 +405,23 @@ const CourseDetailRender = (function () {
     document.title = c.name + " - LetDiv";
 
     let html = "";
-    if (hidden) html += '<div style="background:#fff4dc;color:#8a5a00;text-align:center;padding:12px 16px;font-weight:600">Khóa học này hiện tạm ngừng nhận đăng ký.</div>';
+    if (hidden)
+      html +=
+        '<div style="background:#fff4dc;color:#8a5a00;text-align:center;padding:12px 16px;font-weight:600">Khóa học này hiện tạm ngừng nhận đăng ký.</div>';
 
     // ----- section-one -----
     html +=
-      '<div class="section-one"><div class="container"><div class="inner-wrap"><div class="inner-content"><h1>' + esc(c.name) + "</h1>" +
+      '<div class="section-one"><div class="container"><div class="inner-wrap"><div class="inner-content"><h1>' +
+      esc(c.name) +
+      "</h1>" +
       (c.description ? "<p>" + esc(c.description) + "</p>" : "") +
       '<ul class="course-element">' +
-      '<li><div class="course-element-right"><span>Ngày cập nhật</span><span>' + esc(d.updatedAt || "") + "</span></div></li>" +
-      '<li><div class="course-element-right"><span>Học viên</span><span>' + esc(d.students || 0) + "</span></div></li>" +
+      '<li><div class="course-element-right"><span>Ngày cập nhật</span><span>' +
+      esc(d.updatedAt || "") +
+      "</span></div></li>" +
+      '<li><div class="course-element-right"><span>Học viên</span><span>' +
+      esc(d.students || 0) +
+      "</span></div></li>" +
       "</ul></div></div></div></div>";
 
     // ----- section-two: nội dung -----
@@ -294,16 +431,30 @@ const CourseDetailRender = (function () {
 
     // ----- hộp bên phải -----
     const side =
-      '<div class="side-bar-sticky"><div class="inner-images"><img src="' + esc(imgSrc(c.image)) + '" alt=""></div>' +
-      '<div class="inner-price"><div class="price">' + money(c.price) +
-      (c.oldPrice > c.price ? '<span class="price-del"><del>' + money(c.oldPrice) + "</del></span>" : "") + "</div>" +
+      '<div class="side-bar-sticky"><div class="inner-images"><img src="' +
+      esc(imgSrc(c.image)) +
+      '" alt=""></div>' +
+      '<div class="inner-price"><div class="price">' +
+      money(c.price) +
+      (c.oldPrice > c.price
+        ? '<span class="price-del"><del>' + money(c.oldPrice) + "</del></span>"
+        : "") +
+      "</div>" +
       '<button type="button" class="btn btn-primary button" data-toggle="modal" data-target="#exampleModal">Tư Vấn Ngay</button>' +
-      '<button class="button cart"' + (hidden ? " disabled" : "") + ">" + (hidden ? "Tạm ngừng đăng ký" : "Thêm Vào Giỏ") + "</button>" +
+      '<button class="button cart"' +
+      (hidden ? " disabled" : "") +
+      ">" +
+      (hidden ? "Tạm ngừng đăng ký" : "Thêm Vào Giỏ") +
+      "</button>" +
       perksHtml(d) +
       "</div></div>";
 
     html +=
-      '<div class="section-two"><div class="container"><div class="inner-wrap"><div class="inner-content">' + main + "</div>" + side + "</div></div></div>";
+      '<div class="section-two"><div class="container"><div class="inner-wrap"><div class="inner-content">' +
+      main +
+      "</div>" +
+      side +
+      "</div></div></div>";
     root.innerHTML = html;
   }
 
@@ -317,7 +468,8 @@ const CourseDetailRender = (function () {
       setupTrialModal();
       // header-auth.js (nạp sau file này) báo sẵn sàng qua AuthReady -> lúc đó mới biết người xem đã mua khóa chưa
       document.addEventListener("DOMContentLoaded", () => {
-        if (typeof AuthReady === "function") AuthReady(() => unlockTrialsForOwner(course, root));
+        if (typeof AuthReady === "function")
+          AuthReady(() => unlockTrialsForOwner(course, root));
       });
     }
   }

@@ -12,9 +12,12 @@ function initMyCoursesPage() {
   const esc = (t) => CartUI.esc(t);
 
   const orders = user.studentId ? Store.ordersOfStudent(user.studentId) : [];
-  const purchased = user.studentId
+  const direct = user.studentId
     ? Store.purchasedCourses(user.studentId)
     : [];
+  // Khóa học con nằm trong combo đã mua cũng được mở (xem video, không mua lại được)
+  const bundled = user.studentId ? Store.bundledCourses(user.studentId) : [];
+  const purchased = direct.concat(bundled);
   const spent = Store.sumTotal(Store.completedOrders(orders));
 
   function dateText(iso) {
@@ -56,14 +59,19 @@ function initMyCoursesPage() {
         ? '<a href="' + esc(href) + '">' + esc(it.name) + "</a>"
         : esc(it.name)) +
       "</h3>" +
-      '<div class="mc-meta"><div><i class="fa-regular fa-calendar"></i> Mua ngày ' +
+      '<div class="mc-meta"><div><i class="fa-regular fa-calendar"></i> ' +
+      (it.viaName ? "Nhận ngày " : "Mua ngày ") +
       dateText(it.date) +
       "</div>" +
       '<div><i class="fa-solid fa-hashtag"></i> Mã đơn ' +
       esc(it.orderId) +
-      "</div></div>" +
+      "</div>" +
+      (it.viaName
+        ? '<div><i class="fa-solid fa-layer-group"></i> Nằm trong: ' + esc(it.viaName) + "</div>"
+        : "") +
+      "</div>" +
       '<div class="mc-foot"><span class="mc-price">' +
-      formatVnd(it.price) +
+      (it.viaName ? "Đã gồm trong combo" : formatVnd(it.price)) +
       "</span>" +
       (href
         ? '<a class="mc-btn" href="' + esc(href) + '"><i class="fa-solid fa-eye"></i> Xem khóa học</a>'

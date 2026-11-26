@@ -34,6 +34,20 @@ const PAYMENT_METHODS = [
   "Thẻ Visa / Mastercard",
 ];
 
+/* Nội dung của các khóa COMBO có sẵn trong file HTML (mục "Nội dung khóa học" là các khóa học khác,
+   không phải collapse). Khóa nào có dữ liệu admin tự thêm / sửa (course.detail) thì dùng dữ liệu đó,
+   còn lại dùng bảng này. Khóa: tên file của combo (chữ thường) -> tên file các khóa học con. */
+const COMBO_CONTENT = {
+  "back-end-chuan.html": ["JavaScript.html", "TypeScript.html", "Algorithm.html", "OOP.html", "MySQL.html", "Git-GitHub.html", "HTML-CSS.html", "NodeJS.html"],
+  "back-end-gon.html": ["JavaScript.html", "TypeScript.html", "MySQL.html", "Git-GitHub.html", "HTML-CSS.html", "NodeJS.html"],
+  "combo-nenweb.html": ["JavaScript.html", "HTML-CSS.html"],
+  "combo-web-app.html": ["React.html", "NextJS.html", "React-Native.html"],
+  "frontend-chuan.html": ["JavaScript.html", "TypeScript.html", "Algorithm.html", "OOP.html", "NextJS.html", "Git-GitHub.html", "HTML-CSS.html", "React.html"],
+  "frontend-gon.html": ["JavaScript.html", "TypeScript.html", "NextJS.html", "Git-GitHub.html", "HTML-CSS.html", "React.html"],
+  "full-stack-chuan.html": ["JavaScript.html", "TypeScript.html", "Algorithm.html", "React.html", "NextJS.html", "OOP.html", "MySQL.html", "Git-GitHub.html", "HTML-CSS.html", "NodeJS.html"],
+  "full-stack-gon.html": ["JavaScript.html", "TypeScript.html", "React.html", "NextJS.html", "MySQL.html", "Git-GitHub.html", "HTML-CSS.html", "NodeJS.html"],
+};
+
 /* ---------- Hàm tiện ích thuần (không phụ thuộc localStorage) ---------- */
 
 // "2026-10-10" -> Date (giờ địa phương, 00:00:00)
@@ -433,14 +447,74 @@ const Store = {
     return result;
   },
 
-  // Các khóa học học viên đã sở hữu (để chặn mua trùng)
+  // Mã các khóa học con nằm trong "Nội dung khóa học" của 1 khóa combo (gồm cả combo lồng nhau).
+  // Khóa thường (nội dung dạng collapse) trả về mảng rỗng.
+  includedCourseIds(courseId, seen) {
+    seen = seen || new Set([courseId]);
+    const c = this.getCourse(courseId);
+    if (!c) return [];
+    let direct = [];
+    if (c.detail && (c.custom || c.detailOverride)) {
+      // Nội dung do admin nhập: chỉ là combo khi chọn dạng "khóa học liên quan"
+      direct = c.detail.contentMode === "related" ? c.detail.related || [] : [];
+    } else if (c.href) {
+      const file = c.href.split("/").pop().toLowerCase();
+      const files = COMBO_CONTENT[file] || [];
+      const all = this.get("courses");
+      direct = files
+        .map((f) => all.find((x) => x.href && x.href.split("/").pop().toLowerCase() === f.toLowerCase()))
+        .filter(Boolean)
+        .map((x) => x.id);
+    }
+    const out = [];
+    direct.forEach((id) => {
+      if (seen.has(id)) return;
+      seen.add(id);
+      out.push(id);
+      this.includedCourseIds(id, seen).forEach((x) => out.push(x));
+    });
+    return out;
+  },
+
+  // Các khóa học học viên đã sở hữu (để chặn mua trùng + mở video).
+  // Mua combo => các khóa học con trong combo cũng được tính là đã sở hữu.
   ownedCourseIds(studentId) {
     const ids = [];
     this.ordersOfStudent(studentId).forEach((o) => {
       if (o.status === "cancelled") return;
-      o.items.forEach((it) => ids.push(it.courseId));
+      o.items.forEach((it) => {
+        ids.push(it.courseId);
+        this.includedCourseIds(it.courseId).forEach((id) => ids.push(id));
+      });
     });
     return ids;
+  },
+
+  // Khóa học con được tặng kèm theo combo đã mua (chưa mua riêng) - để hiện ở "Khóa học đã mua"
+  bundledCourses(studentId) {
+    const direct = new Set();
+    this.ordersOfStudent(studentId).forEach((o) => {
+      if (o.status === "cancelled") return;
+      o.items.forEach((it) => direct.add(it.courseId));
+    });
+    const result = [];
+    const seen = new Set();
+    this.ordersOfStudent(studentId).forEach((o) => {
+      if (o.status !== "completed") return;
+      o.items.forEach((it) => {
+        this.includedCourseIds(it.courseId).forEach((id) => {
+          if (direct.has(id) || seen.has(id)) return;
+          const c = this.getCourse(id);
+          if (!c || c.deleted) return;
+          seen.add(id);
+          result.push({
+            courseId: c.id, name: c.name, image: c.image, price: c.price,
+            orderId: o.id, date: o.createdAt, viaName: it.name,
+          });
+        });
+      });
+    });
+    return result;
   },
 
   /* =======================================================
